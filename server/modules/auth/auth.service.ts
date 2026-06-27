@@ -18,13 +18,8 @@ class AuthService {
       throw new BadRequestError(
         "Email, password, username, and role are required"
       );
-    } else if (!email.includes("@")) {
-      throw new BadRequestError("Invalid email format");
-    } else if (password.length < 6) {
-      throw new BadRequestError("Password must be at least 6 characters long");
-    } else if (role !== "user" && role !== "admin") {
-      throw new BadRequestError("Role must be either 'user' or 'admin'");
-    }
+    } 
+    
 
     if (await UserModel.findOne({ email })) {
       throw new ConflictError("Email already exists");
