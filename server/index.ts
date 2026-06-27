@@ -3,6 +3,9 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import bodyParser from "body-parser";
 import cors from "cors";
+import authRouter from "./modules/auth/auth.routes.js";
+import errorHandler from "./utils/errorHandler.js";
+import multer from "multer";
 
 dotenv.config();
 
@@ -11,8 +14,9 @@ const PORT = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
 app.use(cors());
+app.use(multer().any());
 
-// app.use("/api/tasks", taskRoutes);
+app.use("/auth", authRouter);
 
 app.get("/", (req, res) => {
   res.send("Task Management System API is running");
@@ -29,3 +33,5 @@ mongoose
   .catch((error) => {
     console.error("Error connecting to MongoDB:", error);
   });
+
+app.use(errorHandler);
