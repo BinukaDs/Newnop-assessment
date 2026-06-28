@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import bodyParser from "body-parser";
 import cors from "cors";
 import authRouter from "./modules/auth/auth.routes.js";
+import taskRouter from "./modules/tasks/task.routes.js";
 import errorHandler from "./utils/errorHandler.js";
 import multer from "multer";
 
@@ -17,6 +18,7 @@ app.use(cors());
 app.use(multer().any());
 
 app.use("/auth", authRouter);
+app.use("/tasks", taskRouter);
 
 app.get("/", (req, res) => {
   res.send("Task Management System API is running");
