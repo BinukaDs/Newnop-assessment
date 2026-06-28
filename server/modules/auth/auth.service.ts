@@ -8,7 +8,7 @@ import {
   NotFoundError,
   UnauthorizedError,
 } from "../../utils/errorHandler.js";
-import type { IUser } from "../../types/user.types.js";
+import type { IUser } from "../users/user.types.js";
 
 class AuthService {
   async register(userData: IUser) {
