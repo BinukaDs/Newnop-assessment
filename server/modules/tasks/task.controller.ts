@@ -4,7 +4,7 @@ import TaskService from "./task.service.js";
 class TaskController {
   async createTask(req: Request, res: Response) {
     try {
-      const task = await TaskService.createTask(req);
+      const task = await TaskService.createTask(req as any);
       res.status(201).json({ message: "Task created successfully", task });
     } catch (error: any) {
       res.status(error.statusCode || 500).json({ message: error.message });
@@ -13,7 +13,7 @@ class TaskController {
 
   async getTaskById(req: Request, res: Response) {
     try {
-      const task = await TaskService.getTaskById(req.params.id, req.user);
+      const task = await TaskService.getTaskById(req.params.id as string, (req as any).user);
       res.status(200).json({ message: "Task retrieved successfully", task });
     } catch (error: any) {
       res.status(error.statusCode || 500).json({ message: error.message });
@@ -22,7 +22,7 @@ class TaskController {
 
   async getAllTasks(req: Request, res: Response) {
     try {
-      const tasks = await TaskService.getAllTasks(req.user, req.query);
+      const tasks = await TaskService.getAllTasks((req as any).user, req.query as any);
       res.status(200).json({ message: "Tasks retrieved successfully", tasks });
     } catch (error: any) {
       res.status(error.statusCode || 500).json({ message: error.message });
@@ -32,9 +32,9 @@ class TaskController {
   async updateTask(req: Request, res: Response) {
     try {
       const task = await TaskService.updateTask(
-        req.params.id,
+        req.params.id as string,
         req.body,
-        req.user
+        (req as any).user
       );
       res.status(200).json({ message: "Task updated successfully", task });
     } catch (error: any) {
@@ -44,7 +44,7 @@ class TaskController {
 
   async deleteTask(req: Request, res: Response) {
     try {
-      await TaskService.deleteTask(req.params.id, req.user);
+      await TaskService.deleteTask(req.params.id as string, (req as any).user);
       res.status(200).json({ message: "Task deleted successfully" });
     } catch (error: any) {
       res.status(error.statusCode || 500).json({ message: error.message });
