@@ -10,9 +10,12 @@ import { useState, useEffect } from 'react'
 import { isAuthenticated } from './services/auth.service'
 import ProtectedRoute from './services/protectedRoute'
 import type { ITask } from './types/task.types'
+
 function App() {
   const [user, setUser] = useState(null);
   const [tasks, setTasks] = useState<ITask[]>([]);
+  const [users, setUsers] = useState([]);
+
 
 
 
@@ -32,11 +35,14 @@ function App() {
       }
     };
 
+
+
     checkAuth();
+
   }, []);
 
   return (
-    <UserContext.Provider value={{ user, setUser, tasks, setTasks }}>
+    <UserContext.Provider value={{ user, setUser, users, setUsers, tasks, setTasks }}>
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />

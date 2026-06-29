@@ -12,23 +12,42 @@ export function TaskSearch({ setTasks }: { tasks: ITask[], setTasks: React.Dispa
   const [search, setSearch] = useState("");
   const [priorityFilter, setPriorityFilter] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSearch = async (query: string) => {
-    if(priorityFilter) {
-      query += `&priority=${priorityFilter}`;
-    }
-    if(statusFilter) {
-      query += `&status=${statusFilter}`;
-    }
-    const searchResponse = await searchTasks(query);
-    if (searchResponse && searchResponse.tasks.length > 0) {
-      setTasks(searchResponse.tasks);
-      setIsLoading(false);
-    } else if (searchResponse && searchResponse.tasks.length === 0) {
+  const applySort = (tasksList: ITask[], sortVal: string | null) => {
+    if (!sortVal) return tasksList;
+    return [...tasksList].sort((a, b) => {
+      if (sortVal === "title") {
+        return a.title.localeCompare(b.title);
+      } else if (sortVal === "status") {
+        return a.status.localeCompare(b.status);
+      } else if (sortVal === "priorityHighLow") {
+        const weights: Record<string, number> = { high: 3, medium: 2, low: 1 };
+        return (weights[b.priority.toLowerCase()] || 0) - (weights[a.priority.toLowerCase()] || 0);
+      } else if (sortVal === "priorityLowHigh") {
+        const weights: Record<string, number> = { high: 3, medium: 2, low: 1 };
+        return (weights[a.priority.toLowerCase()] || 0) - (weights[b.priority.toLowerCase()] || 0);
+      } else if (sortVal === "dueDate") {
+        return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+      }
+      return 0;
+    });
+  };
+
+  const handleSearch = async (query: string, activeSort: string | null = sortBy) => {
+    const params: { search?: string; priority?: string; status?: string } = {};
+    if (query) params.search = query;
+    if (priorityFilter) params.priority = priorityFilter;
+    if (statusFilter) params.status = statusFilter;
+    
+    const searchResponse = await searchTasks(params);
+    if (searchResponse && searchResponse.tasks) {
+      setTasks(applySort(searchResponse.tasks, activeSort));
+    } else {
       setTasks([]);
-      setIsLoading(false);
     }
+    setIsLoading(false);
   }
 
   useEffect(() => {
@@ -43,20 +62,13 @@ export function TaskSearch({ setTasks }: { tasks: ITask[], setTasks: React.Dispa
   }, [search, priorityFilter, statusFilter]);
 
 
-  const handleSort = (sortBy: string) => {
-    const sortedTasks = [...tasks].sort((a, b) => {
-      if (sortBy === "title") {
-        return a.title.localeCompare(b.title);
-      } else if (sortBy === "status") {
-        return a.status.localeCompare(b.status);
-      } else if (sortBy === "priority") {
-        return a.priority.localeCompare(b.priority);
-      } else if (sortBy === "dueDate") {
-        return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
-      }
-      return 0;
-    });
-    setTasks(sortedTasks);
+  const handleSort = (sortVal: string | null) => {
+    setSortBy(sortVal);
+    if (!sortVal) {
+      handleSearch(search, null);
+    } else {
+      setTasks(prev => applySort(prev, sortVal));
+    }
   };
 
   return (
@@ -73,30 +85,58 @@ export function TaskSearch({ setTasks }: { tasks: ITask[], setTasks: React.Dispa
       </div>
 
       <div className="flex items-center gap-3">
-        {/* <Button variant="outline" className="h-10 text-slate-600 border-slate-200 hover:bg-slate-50 gap-2">
-          <Filter size={16} />
-          <span>Status</span>
-        </Button> */}
         <Popover>
           <PopoverTrigger>
-            <Button variant="outline" className="h-10 text-slate-600 border-slate-200 hover:bg-slate-50 gap-2">
+            <Button variant="outline" className={`h-10 border-slate-200 gap-2 ${statusFilter ? 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100' : 'text-slate-600 hover:bg-slate-50'}`}>
               <Filter size={16} />
-              <span>Priority</span>
+              <span>{statusFilter ? `Status: ${statusFilter}` : 'Status'}</span>
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent>
+            <ul>
+              <li><Button variant="ghost" onClick={() => setStatusFilter(null)} className={`w-full justify-start ${!statusFilter ? "bg-slate-100 font-bold" : ""}`}>All</Button></li>
+              <li><Button variant="ghost" onClick={() => setStatusFilter(prev => prev === "open" ? null : "open")} className={`w-full justify-start ${statusFilter === "open" ? "bg-slate-100 font-bold" : ""}`}>Open</Button></li>
+              <li><Button variant="ghost" onClick={() => setStatusFilter(prev => prev === "in-progress" ? null : "in-progress")} className={`w-full justify-start ${statusFilter === "in-progress" ? "bg-slate-100 font-bold" : ""}`}>In Progress</Button></li>
+              <li><Button variant="ghost" onClick={() => setStatusFilter(prev => prev === "testing" ? null : "testing")} className={`w-full justify-start ${statusFilter === "testing" ? "bg-slate-100 font-bold" : ""}`}>Testing</Button></li>
+              <li><Button variant="ghost" onClick={() => setStatusFilter(prev => prev === "complete" ? null : "complete")} className={`w-full justify-start ${statusFilter === "complete" ? "bg-slate-100 font-bold" : ""}`}>Complete</Button></li>
+            </ul>
+          </PopoverContent>
+        </Popover>
+        <Popover>
+          <PopoverTrigger>
+            <Button variant="outline" className={`h-10 border-slate-200 gap-2 ${priorityFilter ? 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100' : 'text-slate-600 hover:bg-slate-50'}`}>
+              <Filter size={16} />
+              <span>{priorityFilter ? `Priority: ${priorityFilter}` : 'Priority'}</span>
             </Button>
           </PopoverTrigger>
           <PopoverContent>
             {/* Priority options go here */}
             <ul>
-              <li><Button variant="ghost" onClick={() => setPriorityFilter("high")} className="w-full justify-start">High</Button></li>
-              <li><Button variant="ghost" onClick={() => setPriorityFilter("medium")} className="w-full justify-start">Medium</Button></li>
-              <li><Button variant="ghost" onClick={() => setPriorityFilter("low")} className="w-full justify-start">Low</Button></li>
+              <li><Button variant="ghost" onClick={() => setPriorityFilter(null)} className={`w-full justify-start ${!priorityFilter ? "bg-slate-100 font-bold" : ""}`}>All</Button></li>
+              <li><Button variant="ghost" onClick={() => setPriorityFilter(prev => prev === "high" ? null : "high")} className={`w-full justify-start ${priorityFilter === "high" ? "bg-slate-100 font-bold" : ""}`}>High</Button></li>
+              <li><Button variant="ghost" onClick={() => setPriorityFilter(prev => prev === "medium" ? null : "medium")} className={`w-full justify-start ${priorityFilter === "medium" ? "bg-slate-100 font-bold" : ""}`}>Medium</Button></li>
+              <li><Button variant="ghost" onClick={() => setPriorityFilter(prev => prev === "low" ? null : "low")} className={`w-full justify-start ${priorityFilter === "low" ? "bg-slate-100 font-bold" : ""}`}>Low</Button></li>
             </ul>
           </PopoverContent>
         </Popover>
-        <Button variant="outline" className="h-10 text-slate-600 border-slate-200 hover:bg-slate-50 gap-2">
-          <SlidersHorizontal size={16} />
-          <span>Sort</span>
-        </Button>
+        <Popover>
+          <PopoverTrigger>
+            <Button variant="outline" className={`h-10 border-slate-200 gap-2 ${sortBy ? 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100' : 'text-slate-600 hover:bg-slate-50'}`}>
+              <SlidersHorizontal size={16} />
+              <span>{sortBy ? `Sort: ${sortBy}` : 'Sort'}</span>
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent>
+            <ul>
+              <li><Button variant="ghost" onClick={() => handleSort(null)} className={`w-full justify-start ${!sortBy ? "bg-slate-100 font-bold" : ""}`}>None</Button></li>
+              <li><Button variant="ghost" onClick={() => handleSort("title")} className={`w-full justify-start ${sortBy === "title" ? "bg-slate-100 font-bold" : ""}`}>Title</Button></li>
+              <li><Button variant="ghost" onClick={() => handleSort("dueDate")} className={`w-full justify-start ${sortBy === "dueDate" ? "bg-slate-100 font-bold" : ""}`}>Due Date</Button></li>
+              <li><Button variant="ghost" onClick={() => handleSort("priorityHighLow")} className={`w-full justify-start ${sortBy === "priorityHighLow" ? "bg-slate-100 font-bold" : ""}`}>Priority (High to Low)</Button></li>
+              <li><Button variant="ghost" onClick={() => handleSort("priorityLowHigh")} className={`w-full justify-start ${sortBy === "priorityLowHigh" ? "bg-slate-100 font-bold" : ""}`}>Priority (Low to High)</Button></li>
+              <li><Button variant="ghost" onClick={() => handleSort("status")} className={`w-full justify-start ${sortBy === "status" ? "bg-slate-100 font-bold" : ""}`}>Status</Button></li>
+            </ul>
+          </PopoverContent>
+        </Popover>
       </div>
     </div>
   )

@@ -33,12 +33,10 @@ export async function getTasks(): Promise<ITask[] | undefined> {
   }
 }
 
-export async function searchTasks(query: string): Promise<ITask[] | undefined> {
+export async function searchTasks(params: { search?: string, priority?: string, status?: string }): Promise<any | undefined> {
   try {
-    const response = await taskApi.get<ITask[]>("/tasks", {
-      params: {
-        search: query,
-      },
+    const response = await taskApi.get<any>("/tasks", {
+      params,
     });
     return response.data;
   } catch (error) {

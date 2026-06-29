@@ -98,12 +98,21 @@ class TaskService {
       };
     }
 
+    if(user.userRole === "admin" && filters.assignedTo) {
+      if (!mongoose.Types.ObjectId.isValid(filters.assignedTo)) {
+        throw new BadRequestError("Invalid assignedTo ID");
+      }
+      query.assignedTo = filters.assignedTo;
+    } else if (user.userRole !== "admin") {
+      query.assignedTo = user.userId;
+    }
+
     tasks = await TaskModel.find(query).populate(
       "assignedTo",
       "username email"
     );
 
-    if (!tasks || tasks.length === 0) {
+    if (!tasks) {
       throw new NotFoundError("No tasks found");
     }
 
