@@ -1,11 +1,17 @@
 import { LayoutDashboard, LogOut } from 'lucide-react'
 import { logoutUser } from '@/services/auth.service'
 import { useNavigate } from 'react-router';
+import { useContext } from 'react';
+import { UserContext } from '@/context/user.context';
 
 export function Sidebar() {
   const navigate = useNavigate();
+  const { setUser, setTasks, setUsers } = useContext(UserContext);
   const handleLogout = async () => {
     logoutUser();
+    setUser(null);
+    setTasks([]);
+    setUsers([]);
     navigate("/login", { replace: true });
   }
   return (
