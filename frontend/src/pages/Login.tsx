@@ -36,6 +36,25 @@ export function Login() {
     }
   }
 
+  const handleDemoCredentials = (role: "admin" | "user") => {
+    const demoCredentials = {
+      admin: {
+        email: "admin@example.com",
+        password: "123456",
+      },
+      user: {
+        email: "brown@gmail.com",
+        password: "123456",
+      },
+    };
+    const { email, password } = demoCredentials[role];
+    const form = formRef.current;
+    if (form) {
+      form.querySelector<HTMLInputElement>('input[name="email"]')!.value = email;
+      form.querySelector<HTMLInputElement>('input[name="password"]')!.value = password;
+    }
+  };
+
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     if (token) {
@@ -46,7 +65,7 @@ export function Login() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50/50 p-4">
       <div className="text-center mb-8">
-        <img src="logo.avif" alt="logo" className='w-20 h-20 justify-self-center' />
+        <img src="/logo.avif" alt="logo" className='w-20 h-20 justify-self-center' />
         <h1 className="text-3xl font-bold text-[#005ab4] tracking-tight mb-2">TaskSystem</h1>
         <p className="text-sm text-slate-500 font-medium">Sign in to manage your workspace</p>
       </div>
@@ -61,6 +80,7 @@ export function Login() {
               id="email"
               type="email"
               name="email"
+
               placeholder="name@example.com"
               className="h-10 border-slate-200 focus-visible:ring-[#005ab4]"
               required
@@ -78,15 +98,27 @@ export function Login() {
               type="password"
               name="password"
               placeholder="••••••••"
+
               className="h-10 border-slate-200 focus-visible:ring-[#005ab4]"
               required
             />
+          </div>
+
+          <div className='text-center'>
+            <Button variant="link" onClick={() => handleDemoCredentials("admin")} className="text-sm text-[#005ab4] font-medium">
+              Admin Credentials
+            </Button>
+            <Button variant="link" onClick={() => handleDemoCredentials("user")} className="text-sm text-[#005ab4] font-medium">
+              User Credentials
+            </Button>
           </div>
 
           <Button type="submit" className="mt-2 w-full">
             {isLoading ? "Signing in..." : "Sign In"}
           </Button>
         </form>
+
+
 
         <div className="mt-8 border-t border-slate-100 pt-6 text-center">
           <p className="text-sm text-slate-600">
