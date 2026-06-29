@@ -18,8 +18,7 @@ class AuthService {
       throw new BadRequestError(
         "Email, password, username, and role are required"
       );
-    } 
-    
+    }
 
     if (await UserModel.findOne({ email })) {
       throw new ConflictError("Email already exists");
@@ -53,22 +52,34 @@ class AuthService {
     const isValid = await bcrypt.compare(credentials.password, user.password);
     if (!isValid) throw new UnauthorizedError("Invalid credentials");
 
+    const sanitizedUser = {
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+    };
+
     try {
       const token = jwt.sign(
         { userId: user._id, userRole: user.role },
-        process.env.JWT_SECRET as string
+        process.env.JWT_SECRET as string,
+        { expiresIn: "1h" }
       );
-      return { token };
+      return { token, sanitizedUser };
     } catch (error) {
       console.error("Error generating token:", error);
       throw new InternalServerError("Error generating token");
     }
   }
 
-  async getProfile(userId: string) {
+  async validateUser(userId: string) {
     if (!userId) throw new BadRequestError("User ID is required");
-    const user = await UserModel.findById(userId).select("role userId");
-    if (!user) throw new Error("User not found");
+    const user = await UserModel.findById(userId).select(
+      "_id role username email"
+    );
+    if (!user) {
+      throw new UnauthorizedError("User not found");
+    }
     return user;
   }
 }

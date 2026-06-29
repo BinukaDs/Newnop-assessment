@@ -7,7 +7,8 @@ export const taskSchema = z.object({
   dueDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
     message: "Invalid date format",
   }),
-  status: z.enum(["open", "in-progress", "done"]),
+  assignedTo: z.string().min(2).max(100).optional(),
+  status: z.enum(["open", "in-progress", "testing", "complete"]),
 });
 
 export const taskIdSchema = z.object({
@@ -21,6 +22,6 @@ export const updateTaskSchema = z.object({
   dueDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
     message: "Invalid date format",
   }).optional(),
-  status: z.enum(["open", "in-progress", "done"]).optional(),
+  status: z.enum(["open", "in-progress", "complete"]).optional(),
   userId: z.string().optional(),
 });

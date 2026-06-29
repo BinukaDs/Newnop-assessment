@@ -12,17 +12,18 @@ import type { IJWTResponseUser } from "../../types/response.types.js";
 
 class TaskService {
   async createTask(req: Request) {
-    const { title, description, priority, status, dueDate } = req.body as ITask;
-    const assignedTo = req.user.userId;
+    let { title, description, priority, status, dueDate, assignedTo } =
+      req.body as ITask;
 
-    if (
-      !title ||
-      !description ||
-      !priority ||
-      !dueDate ||
-      !status ||
-      !assignedTo
-    ) {
+    const isAdmin = req.user.userRole === "admin";
+
+    if (!isAdmin) {
+      assignedTo = req.user.userId;
+    }
+
+    console.log("assigned: ", assignedTo);
+
+    if (!title || !description || !priority || !dueDate || !status) {
       throw new BadRequestError("All fields are required");
     }
 
@@ -33,12 +34,14 @@ class TaskService {
       status,
       dueDate,
       assignedTo,
+      createdBy: req.user.userId,
     });
 
     try {
       await task.save();
       return task._id;
     } catch (error) {
+      console.log(error);
       throw new InternalServerError("Error creating task");
     }
   }
@@ -92,7 +95,10 @@ class TaskService {
       };
     }
 
-    tasks = await TaskModel.find(query);
+    tasks = await TaskModel.find(query).populate(
+      "assignedTo",
+      "username email"
+    );
 
     if (!tasks || tasks.length === 0) {
       throw new NotFoundError("No tasks found");
