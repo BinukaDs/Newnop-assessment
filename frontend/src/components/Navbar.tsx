@@ -1,22 +1,25 @@
-import { Search, Bell } from 'lucide-react'
-import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
+
+import { Badge } from '@/components/ui/badge'
+import { getInitials, getStatusColor } from '@/lib/formatters.util'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { useContext } from 'react'
+import { UserContext } from '@/context/user.context'
 export function Navbar() {
+  const {user,tasks} = useContext(UserContext);
   return (
     <header className="h-16 border-b bg-white flex items-center justify-end px-6">
      
 
       <div className="flex items-center gap-6 ml-4">
         <div className="flex items-center gap-3">
-          <Badge variant="outline" className="text-slate-600 border-slate-200 bg-slate-50 gap-1.5 px-3 py-1 font-medium">
+          <Badge variant="outline" className={`${getStatusColor("pending")} gap-1.5 px-3 py-1 font-medium`}>
             <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
-            12 Pending
+             {tasks.filter(task => task.status === "open").length} Open
           </Badge>
-          <Badge variant="outline" className="text-slate-600 border-slate-200 bg-slate-50 gap-1.5 px-3 py-1 font-medium">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-            5 Completed
+          <Badge variant="outline" className={`${getStatusColor("complete")} gap-1.5 px-3 py-1 font-medium`}>
+            <span className="w-1.5 h-1.5 rounded-full bg-green-700"></span>
+            {tasks.filter(task => task.status === "complete").length} Completed
           </Badge>
         </div>
 
@@ -25,8 +28,8 @@ export function Navbar() {
           
           
           <Avatar className="h-8 w-8 border">
-            <AvatarImage src="https://github.com/shadcn.png" />
-            <AvatarFallback>JD</AvatarFallback>
+            
+            <AvatarFallback>{getInitials(user.username)}</AvatarFallback>
           </Avatar>
         </div>
       </div>

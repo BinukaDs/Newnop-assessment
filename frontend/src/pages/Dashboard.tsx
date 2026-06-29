@@ -13,6 +13,7 @@ import { UserContext } from '@/context/user.context'
 import { Dialog, DialogContent, DialogClose, DialogTrigger, DialogTitle, DialogDescription, DialogHeader, DialogFooter } from '@/components/ui/dialog'
 import { getUsers } from '@/services/user.service'
 import type { IUser } from '@/types/auth.types'
+import { TaskCardSkeleton } from '@/components/skeletons/TaskCardSkeleton'
 
 
 function Dashboard() {
@@ -90,7 +91,11 @@ function Dashboard() {
 
                     <div className="max-w-6xl mx-auto w-full flex-1 overflow-y-auto pb-8 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {tasks.length > 0 ? tasks.map((task, index) => (
+                            {isLoading ? (
+                                Array.from({ length: 6 }).map((_, index) => (
+                                    <TaskCardSkeleton key={index} />
+                                ))
+                            ) : tasks.length > 0 ? tasks.map((task, index) => (
                                 <TaskCard
                                     key={index}
                                     task={task}

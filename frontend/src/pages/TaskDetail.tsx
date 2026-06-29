@@ -18,6 +18,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectGroup, SelectValue } from '@/components/ui/select'
 import type { IUser } from '@/types/auth.types'
 import { getUsers } from '@/services/user.service'
+import { TaskDetailSkeleton } from '@/components/skeletons/TaskDetailSkeleton'
 
 
 
@@ -74,6 +75,7 @@ export function TaskDetail() {
 
   useEffect(() => {
     const run = async () => {
+      setIsLoading(true);
       if (tasks.length === 0) {
         await getTaskById(taskId)
           .then(response => {
@@ -82,13 +84,12 @@ export function TaskDetail() {
             }
           });
       } else {
-        setTask(tasks.find(t => t._id === taskId));
+        setTask(tasks.find(t => t._id === taskId) || null);
       }
       if (isAdmin) { await getUsersData(); }
-
+      setIsLoading(false);
     }
     run();
-
   }, [])
   return (
     <div className="flex h-screen overflow-hidden bg-slate-50/50">
@@ -99,7 +100,9 @@ export function TaskDetail() {
         <main className="flex-1 overflow-y-auto p-8">
           <div className="max-w-5xl mx-auto w-full animate-in fade-in zoom-in-95 duration-200">
 
-            {task ? (
+            {isLoading ? (
+              <TaskDetailSkeleton />
+            ) : task ? (
               <div>
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                   <div className="flex items-center gap-3">
