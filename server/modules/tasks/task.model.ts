@@ -7,12 +7,17 @@ const TaskSchema: Schema = new Schema(
     priority: { type: String, enum: ["low", "medium", "high"], required: true },
     status: {
       type: String,
-      enum: ["open", "in-progress", "done"],
+      enum: ["open", "in-progress", "testing", "complete"],
       default: "open",
       required: true,
     },
     dueDate: { type: Date },
     assignedTo: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    createdBy: {
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,

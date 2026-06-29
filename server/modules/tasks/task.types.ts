@@ -4,5 +4,6 @@ export interface ITask {
     priority: "low" | "medium" | "high";
     status: "open" | "in-progress" | "done";
     dueDate: Date;
-    userId: String;
+    assignedTo: String;
+    createdBy?: String;
 }

@@ -1,4 +1,4 @@
-import {z} from "zod";
+import { z } from "zod";
 
 export const taskSchema = z.object({
   title: z.string().min(2).max(100),
@@ -7,7 +7,8 @@ export const taskSchema = z.object({
   dueDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
     message: "Invalid date format",
   }),
-  status: z.enum(["open", "in-progress", "done"]),
+  assignedTo: z.string().min(2).max(100).optional(),
+  status: z.enum(["open", "in-progress", "testing", "complete"]),
 });
 
 export const taskIdSchema = z.object({
@@ -18,9 +19,12 @@ export const updateTaskSchema = z.object({
   title: z.string().min(2).max(100).optional(),
   description: z.string().min(5).max(500).optional(),
   priority: z.enum(["low", "medium", "high"]).optional(),
-  dueDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
-    message: "Invalid date format",
-  }).optional(),
-  status: z.enum(["open", "in-progress", "done"]).optional(),
-  userId: z.string().optional(),
+  dueDate: z
+    .string()
+    .refine((date) => !isNaN(Date.parse(date)), {
+      message: "Invalid date format",
+    })
+    .optional(),
+  status: z.enum(["open", "in-progress", "testing", "complete"]).optional(),
+  assignedTo: z.string().optional(),
 });

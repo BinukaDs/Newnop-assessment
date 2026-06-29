@@ -12,17 +12,18 @@ import type { IJWTResponseUser } from "../../types/response.types.js";
 
 class TaskService {
   async createTask(req: Request) {
-    const { title, description, priority, status, dueDate } = req.body as ITask;
-    const assignedTo = req.user.userId;
+    let { title, description, priority, status, dueDate, assignedTo } =
+      req.body as ITask;
 
-    if (
-      !title ||
-      !description ||
-      !priority ||
-      !dueDate ||
-      !status ||
-      !assignedTo
-    ) {
+    const isAdmin = req.user.userRole === "admin";
+
+    if (!isAdmin) {
+      assignedTo = req.user.userId;
+    }
+
+    console.log("assigned: ", assignedTo);
+
+    if (!title || !description || !priority || !dueDate || !status) {
       throw new BadRequestError("All fields are required");
     }
 
@@ -33,12 +34,14 @@ class TaskService {
       status,
       dueDate,
       assignedTo,
+      createdBy: req.user.userId,
     });
 
     try {
       await task.save();
       return task._id;
     } catch (error) {
+      console.log(error);
       throw new InternalServerError("Error creating task");
     }
   }
@@ -52,12 +55,16 @@ class TaskService {
       throw new BadRequestError("Invalid task ID");
     }
 
-    const task: ITask = await TaskModel.findById(taskId);
+    const task: ITask = await TaskModel.findById(taskId).populate(
+      "assignedTo",
+      "_id username email"
+    );
 
     if (!task) {
       throw new NotFoundError("Task not found");
     }
 
+    console.log("taskId: ", task);
     this.ensureTaskAccess(task, user);
 
     return task;
@@ -66,7 +73,6 @@ class TaskService {
   async getAllTasks(user: IJWTResponseUser, filters: string) {
     let tasks: ITask[];
     let query: string = {};
-    console.log("filters: ", filters);
 
     if (user.userRole !== "admin") {
       query.assignedTo = user.userId;
@@ -92,9 +98,21 @@ class TaskService {
       };
     }
 
-    tasks = await TaskModel.find(query);
+    if(user.userRole === "admin" && filters.assignedTo) {
+      if (!mongoose.Types.ObjectId.isValid(filters.assignedTo)) {
+        throw new BadRequestError("Invalid assignedTo ID");
+      }
+      query.assignedTo = filters.assignedTo;
+    } else if (user.userRole !== "admin") {
+      query.assignedTo = user.userId;
+    }
 
-    if (!tasks || tasks.length === 0) {
+    tasks = await TaskModel.find(query).populate(
+      "assignedTo",
+      "username email"
+    );
+
+    if (!tasks) {
       throw new NotFoundError("No tasks found");
     }
 
@@ -123,7 +141,7 @@ class TaskService {
 
     const updatedTask = await TaskModel.findByIdAndUpdate(taskId, taskData, {
       returnDocument: "after",
-    });
+    }).populate("assignedTo", "username email");
     if (!updatedTask) {
       throw new NotFoundError("Task not found");
     }
@@ -147,18 +165,18 @@ class TaskService {
 
     this.ensureTaskAccess(task, user);
 
-    const deletedTask = await TaskModel.findByIdAndDelete(taskId);
-    if (!deletedTask) {
-      throw new NotFoundError("Task not found");
-    }
+    await TaskModel.findByIdAndDelete(taskId).catch((error) => {
+      console.log(error);
+      throw new InternalServerError("Error deleting task");
+    });
 
-    return deletedTask;
+    return { status: "success", message: "Task deleted successfully" };
   }
 
   private ensureTaskAccess(task: ITask, user: IJWTResponseUser) {
     if (
       user.userRole !== "admin" &&
-      task.userId.toString() !== user.userId.toString()
+      task.assignedTo._id.toString() !== user.userId.toString()
     ) {
       throw new NotFoundError("Task not found");
     }

@@ -5,6 +5,7 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import authRouter from "./modules/auth/auth.routes.js";
 import taskRouter from "./modules/tasks/task.routes.js";
+import userRouter from "./modules/users/user.routes.js";
 import errorHandler from "./utils/errorHandler.js";
 import multer from "multer";
 
@@ -19,6 +20,7 @@ app.use(multer().any());
 
 app.use("/auth", authRouter);
 app.use("/tasks", taskRouter);
+app.use("/users", userRouter);
 
 app.get("/", (req, res) => {
   res.send("Task Management System API is running");
