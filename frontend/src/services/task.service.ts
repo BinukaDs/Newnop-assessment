@@ -33,12 +33,27 @@ export async function getTasks(): Promise<ITask[] | undefined> {
   }
 }
 
+export async function searchTasks(query: string): Promise<ITask[] | undefined> {
+  try {
+    const response = await taskApi.get<ITask[]>("/tasks", {
+      params: {
+        search: query,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error searching tasks:", error);
+    toast.error("Error searching tasks. Please try again.");
+  }
+}
+
 export async function updateTask(
   id: string,
   data: FormData
 ): Promise<ITask | undefined> {
   try {
     const response = await taskApi.patch<ITask>(`/tasks/${id}`, data);
+    toast.success("Task updated successfully!");
     return response.data;
   } catch (error) {
     console.error("Error updating task:", error);
@@ -46,7 +61,22 @@ export async function updateTask(
   }
 }
 
-export async function deleteTask(id: string): Promise<void | { success: boolean }> {
+export async function markAsComplete(id: string): Promise<ITask | undefined> {
+  try {
+    const response = await taskApi.patch<ITask>(`/tasks/${id}`, {
+      status: "complete",
+    });
+    toast.success("Task marked as complete!");
+    return response.data;
+  } catch (error) {
+    console.error("Error marking task as complete:", error);
+    toast.error("Error marking task as complete. Please try again.");
+  }
+}
+
+export async function deleteTask(
+  id: string
+): Promise<void | { success: boolean }> {
   try {
     await taskApi.delete(`/tasks/${id}`);
     toast.success("Task deleted successfully!");

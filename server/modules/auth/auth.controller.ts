@@ -38,7 +38,7 @@ class AuthController {
 
   async validateProfile(req: Request, res: Response) {
     try {
-      console.log("Request user object:", req.user);
+  
       const user = await AuthService.validateUser(req.user.userId);
       res.status(200).json({
         message: "User profile retrieved successfully",

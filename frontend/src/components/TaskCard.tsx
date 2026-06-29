@@ -10,76 +10,24 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { useNavigate } from "react-router"
+import { formatDate, getStatusColor, getPriorityColor, getCardColor, getDueDateColor } from '@/lib/formatters.util'
 
 export function TaskCard({ task, getTasks }: { task: ITask, getTasks: () => Promise<void> }) {
-  const getStatusColor = (status: ITask["status"]) => {
-    switch (status.toLowerCase()) {
-      case "in progress":
-        return "bg-sky-100 text-sky-700";
-      case "open":
-        return "bg-slate-100 text-slate-700";
-      case "testing":
-        return "bg-orange-100 text-orange-700";
-      case "complete":
-        return "bg-green-100 text-green-700";
-      default:
-        return "bg-slate-100 text-slate-700";
-    }
-  };
+  const navigate = useNavigate();
 
-  const getPriorityColor = (priority: ITask["priority"]) => {
-    switch (priority.toLowerCase()) {
-      case "high":
-        return "bg-red-50 text-red-700";
-      case "medium":
-        return "bg-amber-50 text-amber-700";
-      case "low":
-        return "bg-sky-100 text-sky-700";
-      default:
-        return "bg-slate-100 text-slate-700";
-    }
-  };
 
-  const getCardColor = (status: ITask["status"]) => {
-    switch (status.toLowerCase()) {
-      case "in progress":
-        return "bg-blue-50 text-blue-700 hover:bg-blue-100";
-      case "open":
-        return "bg-gray-50 text-gray-700 hover:bg-gray-100";
-      case "testing":
-        return "bg-orange-50 text-orange-700 hover:bg-orange-100";
-      case "complete":
-        return "bg-teal-50 text-teal-700 hover:bg-green-100";
-      default:
-        return "bg-slate-50 text-slate-700 hover:bg-slate-100";
-    }
-  };
-
-  const getDueDateColor = (dueDate: ITask["dueDate"]) => {
-    const dueTime = new Date(dueDate).getTime();
-    const currentTime = new Date().getTime();
-    const diff = dueTime - currentTime;
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    if (days <= 3) {
-      return "text-red-50";
-    } else if (days <= 7) {
-      return "text-orange-50";
-    } else {
-      return "text-green-50";
-    }
-  };
-
-   const handleDeleteTask = async (taskId: string) => {
+  const handleDeleteTask = async (taskId: string) => {
     console.log(taskId)
     const deleteTaskResponse = await deleteTask(taskId);
     if (deleteTaskResponse && deleteTaskResponse.success) {
       getTasks();
-    } 
+    }
   }
 
   return (
     <Card
-      className={`shadow-sm transition-all duration-200 ease-in-out  border-slate-200 rounded-xl ${getCardColor(task.status)} overflow-hidden hover:shadow-lg`}
+      className={`animate-in fade-in zoom-in-95 duration-200 shadow-sm transition-all ease-in-out  border-slate-200 rounded-xl ${getCardColor(task.status)} overflow-hidden hover:shadow-lg`}
     >
       <CardContent className="px-5 py-1">
         <div className="flex w-full justify-between">
@@ -102,33 +50,33 @@ export function TaskCard({ task, getTasks }: { task: ITask, getTasks: () => Prom
 
           </Button> */}
           {/* <TaskOptions taskId={task.id} /> */}
-           <Popover>
-      <PopoverTrigger asChild>
-        <Button variant="ghost">
-          <EllipsisVertical />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent>
-        <ul>
-          <li>
-            <Button onClick={() => handleDeleteTask(task._id)} variant="ghost" className="w-full rounded-lg justify-start">
-              <TrashIcon className="text-red-500"></TrashIcon>Delete
-            </Button>
-          </li>
-          <li>
-            {task.status !== "complete" && (
-              <Button variant="ghost" className="w-full rounded-lg justify-start">
-                <CircleCheck className="text-green-700" />Mark as Complete
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="ghost">
+                <EllipsisVertical />
               </Button>
-            )}
-          </li>
-        </ul>
-      </PopoverContent>
-    </Popover>
+            </PopoverTrigger>
+            <PopoverContent>
+              <ul>
+                <li>
+                  <Button onClick={() => handleDeleteTask(task._id)} variant="ghost" className="w-full rounded-lg justify-start">
+                    <TrashIcon className="text-red-500"></TrashIcon>Delete
+                  </Button>
+                </li>
+                <li>
+                  {task.status !== "complete" && (
+                    <Button variant="ghost" className="w-full rounded-lg justify-start">
+                      <CircleCheck className="text-green-700" />Mark as Complete
+                    </Button>
+                  )}
+                </li>
+              </ul>
+            </PopoverContent>
+          </Popover>
         </div>
 
         <h3 className="font-bold text-lg mb-2 text-slate-900">{task.title}</h3>
-        <p className="text-slate-500 text-sm mb-6 line-clamp-3 leading-relaxed">
+        <p className="text-slate-500  text-sm mb-6 line-clamp-3 leading-relaxed">
           {task.description}
         </p>
 
@@ -144,11 +92,11 @@ export function TaskCard({ task, getTasks }: { task: ITask, getTasks: () => Prom
             className={`flex  items-center text-slate-400 text-xs font-medium gap-1.5 ${getDueDateColor(task.dueDate)}`}
           >
             <Calendar size={14} />
-            {task.dueDate}
+            {formatDate(task.dueDate)}
           </div>
         </div>
         <div className="w-full flex mt-2 justify-end">
-          <Button>
+          <Button onClick={() => navigate(`/tasks/${task._id}`)}>
             <ArrowRight size={14} />
           </Button>
         </div>
@@ -157,10 +105,3 @@ export function TaskCard({ task, getTasks }: { task: ITask, getTasks: () => Prom
   );
 }
 
-// function TaskOptions(taskId: string) {
-//  
-
-//   return (
-   
-//   )
-// }

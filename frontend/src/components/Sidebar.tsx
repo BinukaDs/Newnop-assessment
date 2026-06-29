@@ -17,22 +17,12 @@ export function Sidebar() {
             <LayoutDashboard size={18} />
             <span className="font-medium text-sm">Dashboard</span>
           </a>
-          <a href="#" className="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-100 rounded-lg">
-            <BarChart2 size={18} />
-            <span className="font-medium text-sm">Analytics</span>
-          </a>
-          <a href="#" className="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-100 rounded-lg">
-            <Settings size={18} />
-            <span className="font-medium text-sm">Settings</span>
-          </a>
+         
         </nav>
       </div>
 
       <div className="px-4 space-y-1 border-t pt-4">
-        <a href="#" className="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-100 rounded-lg">
-          <HelpCircle size={18} />
-          <span className="font-medium text-sm">Help</span>
-        </a>
+        
         <a href="#" className="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-100 rounded-lg">
           <LogOut size={18} />
           <span className="font-medium text-sm">Logout</span>

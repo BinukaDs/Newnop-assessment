@@ -55,12 +55,16 @@ class TaskService {
       throw new BadRequestError("Invalid task ID");
     }
 
-    const task: ITask = await TaskModel.findById(taskId);
+    const task: ITask = await TaskModel.findById(taskId).populate(
+      "assignedTo",
+      "_id username email"
+    );
 
     if (!task) {
       throw new NotFoundError("Task not found");
     }
 
+    console.log("taskId: ", task);
     this.ensureTaskAccess(task, user);
 
     return task;
@@ -69,7 +73,6 @@ class TaskService {
   async getAllTasks(user: IJWTResponseUser, filters: string) {
     let tasks: ITask[];
     let query: string = {};
-    console.log("filters: ", filters);
 
     if (user.userRole !== "admin") {
       query.assignedTo = user.userId;
@@ -129,7 +132,7 @@ class TaskService {
 
     const updatedTask = await TaskModel.findByIdAndUpdate(taskId, taskData, {
       returnDocument: "after",
-    });
+    }).populate("assignedTo", "username email");
     if (!updatedTask) {
       throw new NotFoundError("Task not found");
     }
@@ -153,18 +156,18 @@ class TaskService {
 
     this.ensureTaskAccess(task, user);
 
-    const deletedTask = await TaskModel.findByIdAndDelete(taskId);
-    if (!deletedTask) {
-      throw new NotFoundError("Task not found");
-    }
+    await TaskModel.findByIdAndDelete(taskId).catch((error) => {
+      console.log(error);
+      throw new InternalServerError("Error deleting task");
+    });
 
-    return deletedTask;
+    return { status: "success", message: "Task deleted successfully" };
   }
 
   private ensureTaskAccess(task: ITask, user: IJWTResponseUser) {
     if (
       user.userRole !== "admin" &&
-      task.userId.toString() !== user.userId.toString()
+      task.assignedTo._id.toString() !== user.userId.toString()
     ) {
       throw new NotFoundError("Task not found");
     }
