@@ -38,7 +38,7 @@ export async function loginUser(
       toast.info("Login failed: No response received");
     } else {
       console.log("Error", error.message);
-      toast.info("Login failed! An unexpected error occurred");
+      toast.info(error.response?.data?.message || "Login failed! An unexpected error occurred");
     }
   }
 }
@@ -48,7 +48,7 @@ export async function signUpUser(
 ): Promise<IAuthResponse> {
   
   try {
-    const { data } = await authApi.post<IAuthResponse>("/auth/signup", payload);
+    const { data } = await authApi.post<IAuthResponse>("/auth/register", payload);
     if (!data?.userId) {
       throw new Error("Sign up failed");
     }
@@ -56,7 +56,7 @@ export async function signUpUser(
 
   } catch (error) {
     console.error("Error during sign up:", error);
-    toast.info("Sign up failed! An unexpected error occurred");
+    toast.info(error.response?.data?.message || "Sign up failed! An unexpected error occurred");
   }
   return data;
 }

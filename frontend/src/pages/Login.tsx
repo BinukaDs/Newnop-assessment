@@ -46,6 +46,7 @@ export function Login() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50/50 p-4">
       <div className="text-center mb-8">
+        <img src="logo.avif" alt="logo" className='w-20 h-20 justify-self-center' />
         <h1 className="text-3xl font-bold text-[#005ab4] tracking-tight mb-2">TaskSystem</h1>
         <p className="text-sm text-slate-500 font-medium">Sign in to manage your workspace</p>
       </div>

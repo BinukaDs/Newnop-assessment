@@ -72,9 +72,9 @@ function Dashboard() {
             <div className="flex-1 flex flex-col h-full overflow-hidden relative">
                 <Navbar />
 
-                <main className="flex-1 overflow-y-auto p-8">
+                <main className="flex-1 flex flex-col h-full overflow-hidden p-8">
 
-                    <div className="max-w-6xl mx-auto">
+                    <div className="max-w-6xl mx-auto w-full flex-none">
                         <div className="flex items-center justify-between mb-8">
                             <div>
                                 <h2 className="text-3xl font-bold text-slate-900 tracking-tight">{isAdmin ? "Total" : "My"} Tasks</h2>
@@ -86,8 +86,10 @@ function Dashboard() {
                         </div>
 
                         <TaskSearch tasks={tasks} setTasks={setTasks} />
+                    </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ">
+                    <div className="max-w-6xl mx-auto w-full flex-1 overflow-y-auto pb-8 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {tasks.length > 0 ? tasks.map((task, index) => (
                                 <TaskCard
                                     key={index}

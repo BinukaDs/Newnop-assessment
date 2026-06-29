@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "./ui/button";
 import type { ITask } from "@/types/task.types";
-import { deleteTask } from "@/services/task.service";
+import { deleteTask, markAsComplete } from "@/services/task.service";
 
 import {
   Popover,
@@ -18,10 +18,18 @@ export function TaskCard({ task, getTasks }: { task: ITask, getTasks: () => Prom
 
 
   const handleDeleteTask = async (taskId: string) => {
-    console.log(taskId)
     const deleteTaskResponse = await deleteTask(taskId);
     if (deleteTaskResponse && deleteTaskResponse.success) {
       getTasks();
+    }
+  }
+
+  const handleMarkAsComplete = async (taskId: string) => {
+    if (task?.status !== "complete") {
+      const updateResponse = await markAsComplete(taskId);
+      if (updateResponse) {
+        getTasks();
+      }
     }
   }
 
@@ -45,11 +53,7 @@ export function TaskCard({ task, getTasks }: { task: ITask, getTasks: () => Prom
               Priority: {task.priority}
             </Badge>
           </div>
-          {/* <Button variant="ghost">
-            <EllipsisVertical size={18} />
 
-          </Button> */}
-          {/* <TaskOptions taskId={task.id} /> */}
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="ghost">
@@ -65,7 +69,7 @@ export function TaskCard({ task, getTasks }: { task: ITask, getTasks: () => Prom
                 </li>
                 <li>
                   {task.status !== "complete" && (
-                    <Button variant="ghost" className="w-full rounded-lg justify-start">
+                    <Button onClick={() => handleMarkAsComplete(task._id)} variant="ghost" className="w-full rounded-lg justify-start">
                       <CircleCheck className="text-green-700" />Mark as Complete
                     </Button>
                   )}
