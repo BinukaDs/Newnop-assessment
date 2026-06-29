@@ -12,11 +12,13 @@ import type { ITaskResponse } from "@/types/task.types";
 export async function loginUser(
   payload: ILoginRequest
 ): Promise<IAuthResponse | void> {
-
   try {
     const { data } = await authApi.post<IAuthResponse>("/auth/login", payload);
     if (!data?.token) {
-      toast.info((data as unknown as ITaskResponse).message || "Login failed: No token received");
+      toast.info(
+        (data as unknown as ITaskResponse).message ||
+          "Login failed: No token received"
+      );
     }
 
     localStorage.setItem("TMSAccessToken", data.token);
@@ -40,7 +42,10 @@ export async function loginUser(
       toast.info("Login failed: No response received");
     } else {
       console.log("Error", error.message);
-      toast.info(error.response?.data?.message || "Login failed! An unexpected error occurred");
+      toast.info(
+        error.response?.data?.message ||
+          "Login failed! An unexpected error occurred"
+      );
     }
   }
 }
@@ -48,29 +53,37 @@ export async function loginUser(
 export async function signUpUser(
   payload: IRegisterInputs
 ): Promise<IAuthResponse> {
-  
   try {
-    const { data } = await authApi.post<IAuthResponse>("/auth/register", payload);
+    const { data } = await authApi.post<IAuthResponse>(
+      "/auth/register",
+      payload
+    );
     if (!data?.user?.id) {
       throw new Error("Sign up failed");
     }
     return data;
-
   } catch (err: any) {
     const error = err as any;
     console.error("Error during sign up:", error);
-    toast.info(error.response?.data?.message || "Sign up failed! An unexpected error occurred");
+    toast.info(
+      error.response?.data?.message ||
+        "Sign up failed! An unexpected error occurred"
+    );
     throw error;
   }
 }
 
-export async function isAuthenticated(): Promise<boolean | { isValid: boolean; user?: IUser }> {
+export async function isAuthenticated(): Promise<
+  boolean | { isValid: boolean; user?: IUser }
+> {
   const token = localStorage.getItem("TMSAccessToken");
   if (!token) return false;
 
   try {
-    const response = await authApi.get<{ isValid: boolean, user?: IUser }>("/auth/validate");
-    const isValid = response.status === 200 && response.data?.isValid === true
+    const response = await authApi.get<{ isValid: boolean; user?: IUser }>(
+      "/auth/validate"
+    );
+    const isValid = response.status === 200 && response.data?.isValid === true;
     return { isValid: isValid, user: response.data?.user };
   } catch {
     localStorage.removeItem("TMSAccessToken");

@@ -11,7 +11,7 @@ import TaskModel from "./task.model.js";
 import type { IJWTResponseUser } from "../../types/response.types.js";
 
 class TaskService {
-  async createTask(req: Request) {
+  async createTask(req: any) {
     let { title, description, priority, status, dueDate, assignedTo } =
       req.body as ITask;
 
@@ -55,7 +55,7 @@ class TaskService {
       throw new BadRequestError("Invalid task ID");
     }
 
-    const task: ITask = await TaskModel.findById(taskId).populate(
+    const task = await TaskModel.findById(taskId).populate(
       "assignedTo",
       "_id username email"
     );
@@ -70,9 +70,9 @@ class TaskService {
     return task;
   }
 
-  async getAllTasks(user: IJWTResponseUser, filters: string) {
+  async getAllTasks(user: IJWTResponseUser, filters: any) {
     let tasks: ITask[];
-    let query: string = {};
+    let query: any = {};
 
     if (user.userRole !== "admin") {
       query.assignedTo = user.userId;
@@ -107,10 +107,10 @@ class TaskService {
       query.assignedTo = user.userId;
     }
 
-    tasks = await TaskModel.find(query).populate(
+    tasks = (await TaskModel.find(query).populate(
       "assignedTo",
       "username email"
-    );
+    )) as any;
 
     if (!tasks) {
       throw new NotFoundError("No tasks found");
@@ -132,7 +132,7 @@ class TaskService {
       throw new BadRequestError("Invalid task ID");
     }
 
-    const task: ITask = await TaskModel.findById(taskId);
+    const task = (await TaskModel.findById(taskId)) as any;
     if (!task) {
       throw new NotFoundError("Task not found");
     }
@@ -158,7 +158,7 @@ class TaskService {
       throw new BadRequestError("Invalid task ID");
     }
 
-    const task: ITask = await TaskModel.findById(taskId);
+    const task = (await TaskModel.findById(taskId)) as any;
     if (!task) {
       throw new NotFoundError("Task not found");
     }
@@ -173,7 +173,7 @@ class TaskService {
     return { status: "success", message: "Task deleted successfully" };
   }
 
-  private ensureTaskAccess(task: ITask, user: IJWTResponseUser) {
+  private ensureTaskAccess(task: any, user: IJWTResponseUser) {
     if (
       user.userRole !== "admin" &&
       task.assignedTo._id.toString() !== user.userId.toString()

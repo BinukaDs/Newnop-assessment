@@ -12,7 +12,7 @@ class AuthController {
         password,
         username,
         role,
-      });
+      } as any);
       res.status(201).json({
         message: "User registered successfully",
         userId: result.userId,
@@ -39,7 +39,7 @@ class AuthController {
   async validateProfile(req: Request, res: Response) {
     try {
   
-      const user = await AuthService.validateUser(req.user.userId);
+      const user = await AuthService.validateUser((req as any).user.userId);
       res.status(200).json({
         message: "User profile retrieved successfully",
         user,
