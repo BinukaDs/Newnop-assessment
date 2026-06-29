@@ -1,12 +1,14 @@
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { useNavigate } from 'react-router';
-import { loginUser } from '@/services/auth.service';
-import { useRef, useState, useEffect } from 'react';
+import { loginUser, isAuthenticated } from '@/services/auth.service';
+import { useRef, useState, useEffect, useContext } from 'react';
 import type { ILoginRequest } from '@/types/auth.types';
+import { UserContext } from '@/context/user.context';
 
 export function Login() {
   const navigate = useNavigate();
+  const { setUser } = useContext(UserContext);
   const formRef = useRef<HTMLFormElement>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -25,6 +27,10 @@ export function Login() {
       const loginResponse = await loginUser(data as unknown as ILoginRequest)
 
       if (loginResponse?.token) {
+        const authenticateResponse = await isAuthenticated();
+        if (typeof authenticateResponse === 'object' && authenticateResponse.isValid && authenticateResponse.user) {
+          setUser(authenticateResponse.user);
+        }
         navigate("/", { replace: true })
       }
     } catch (error) {
