@@ -103,7 +103,7 @@ export function Register() {
         <div className="mt-8 border-t border-slate-100 pt-6 text-center">
           <p className="text-sm text-slate-600">
             Already have an account?
-            <Button variant="link"
+            <Button variant="link" onClick={() => navigate("/login")} className="ml-1 text-[#005ab4] font-medium"
             >Sign in</Button>
           </p>
         </div>
