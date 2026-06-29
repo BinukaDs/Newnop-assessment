@@ -24,7 +24,7 @@ export function Login() {
 
       const loginResponse = await loginUser(data as unknown as ILoginRequest)
 
-      if (loginResponse.token) {
+      if (loginResponse?.token) {
         navigate("/", { replace: true })
       }
     } catch (error) {

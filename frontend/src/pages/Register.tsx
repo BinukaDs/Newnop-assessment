@@ -21,7 +21,7 @@ export function Register() {
     e.preventDefault();
     const formData = new FormData(RegisterFormRef.current!);
     const data = Object.fromEntries(formData);
-    const signUpResponse = await signUpUser(data);
+    const signUpResponse = await signUpUser(data as any);
     console.log("Sign Up Response:", signUpResponse);
     if (signUpResponse) {
       navigate("/login", { replace: true });

@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext, useRef } from 'react'
-import { Plus, User } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { Sidebar } from '@/components/Sidebar'
 import { Navbar } from '@/components/Navbar'
 import { TaskSearch } from '@/components/TaskSearch'
@@ -18,7 +18,7 @@ import { TaskCardSkeleton } from '@/components/skeletons/TaskCardSkeleton'
 
 function Dashboard() {
     const { user, tasks, setTasks, users, setUsers } = useContext(UserContext);
-    const isAdmin = user.role === "admin";
+    const isAdmin = user?.role === "admin";
     const [isLoading, setIsLoading] = useState(false);
 
 
@@ -31,7 +31,7 @@ function Dashboard() {
             if (!data) {
                 return;
             }
-            setTasks(data.tasks);
+            setTasks((data as any).tasks || data);
 
         } catch (error) {
             console.error("Error fetching tasks:", error);
@@ -50,7 +50,7 @@ function Dashboard() {
             if (!data) {
                 return;
             }
-            setUsers(data.users);
+            setUsers((data as any).users || data);
 
         } catch (error) {
             console.error("Error fetching users:", error);
@@ -117,7 +117,7 @@ function CreateTaskModal({ users, getTasksData }: { users: IUser[], getTasksData
 
     const CreateTaskFormRef = useRef<HTMLFormElement>(null);
     const { user } = useContext(UserContext);
-    const isAdmin = user.role === "admin";
+    const isAdmin = user?.role === "admin";
     const [isLoading, setIsLoading] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
 
@@ -133,7 +133,7 @@ function CreateTaskModal({ users, getTasksData }: { users: IUser[], getTasksData
         const data = Object.fromEntries(formData.entries()) as Record<string, string>
 
         try {
-            await createTask(data);
+            await createTask(data as any);
             await getTasksData();
         } catch (error) {
             console.error("Task creation failed:", error)

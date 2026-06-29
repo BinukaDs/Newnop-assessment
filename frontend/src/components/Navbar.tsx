@@ -15,7 +15,7 @@ export function Navbar() {
         <div className="flex items-center gap-3">
           <Badge variant="outline" className={`${getStatusColor("pending")} gap-1.5 px-3 py-1 font-medium`}>
             <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
-             {tasks.filter(task => task.status === "open").length} Open
+             {tasks.filter(task => task.status === "pending").length} Open
           </Badge>
           <Badge variant="outline" className={`${getStatusColor("complete")} gap-1.5 px-3 py-1 font-medium`}>
             <span className="w-1.5 h-1.5 rounded-full bg-green-700"></span>
@@ -29,7 +29,7 @@ export function Navbar() {
           
           <Avatar className="h-8 w-8 border">
             
-            <AvatarFallback>{getInitials(user.username)}</AvatarFallback>
+            <AvatarFallback>{user ? getInitials(user.username) : ""}</AvatarFallback>
           </Avatar>
         </div>
       </div>

@@ -7,6 +7,7 @@ import type {
 } from "@/types/auth.types";
 import { decodeJwtPayload } from "@/lib/jwt-decoder.util";
 import { toast } from "sonner";
+import type { ITaskResponse } from "@/types/task.types";
 
 export async function loginUser(
   payload: ILoginRequest
@@ -15,7 +16,7 @@ export async function loginUser(
   try {
     const { data } = await authApi.post<IAuthResponse>("/auth/login", payload);
     if (!data?.token) {
-      toast.info(data.message || "Login failed: No token received");
+      toast.info((data as unknown as ITaskResponse).message || "Login failed: No token received");
     }
 
     localStorage.setItem("TMSAccessToken", data.token);
@@ -27,7 +28,8 @@ export async function loginUser(
     }
 
     return data;
-  } catch (error) {
+  } catch (err: any) {
+    const error = err as any;
     if (error.response) {
       console.error(error.response.status, ":", error.response.data);
       toast.info(
@@ -49,16 +51,17 @@ export async function signUpUser(
   
   try {
     const { data } = await authApi.post<IAuthResponse>("/auth/register", payload);
-    if (!data?.userId) {
+    if (!data?.user?.id) {
       throw new Error("Sign up failed");
     }
-    return data.userId;
+    return data;
 
-  } catch (error) {
+  } catch (err: any) {
+    const error = err as any;
     console.error("Error during sign up:", error);
     toast.info(error.response?.data?.message || "Sign up failed! An unexpected error occurred");
+    throw error;
   }
-  return data;
 }
 
 export async function isAuthenticated(): Promise<boolean | { isValid: boolean; user?: IUser }> {
@@ -66,7 +69,7 @@ export async function isAuthenticated(): Promise<boolean | { isValid: boolean; u
   if (!token) return false;
 
   try {
-    const response = await authApi.get<{ isValid: boolean }>("/auth/validate");
+    const response = await authApi.get<{ isValid: boolean, user?: IUser }>("/auth/validate");
     const isValid = response.status === 200 && response.data?.isValid === true
     return { isValid: isValid, user: response.data?.user };
   } catch {

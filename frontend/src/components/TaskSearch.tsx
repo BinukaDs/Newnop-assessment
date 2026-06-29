@@ -81,7 +81,7 @@ export function TaskSearch({ setTasks }: { tasks: ITask[], setTasks: React.Dispa
           placeholder="Search tasks..."
           className="w-full pl-10 bg-slate-50 border-slate-200 focus-visible:ring-blue-500 rounded-lg h-10 shadow-none text-slate-700"
         />
-        {isLoading && <Spinner className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />}
+        {isLoading && <Spinner className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />}
       </div>
 
       <div className="flex items-center gap-3">

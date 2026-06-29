@@ -28,7 +28,7 @@ export function TaskDetail() {
   const [users, setUsers] = useState([]);
   const { taskId } = useParams();
   const [task, setTask] = useState<ITask | null>(null);
-  const isAdmin = user.role === "admin";
+  const isAdmin = user?.role === "admin";
   const [isLoading, setIsLoading] = useState(false);
 
 
@@ -41,7 +41,7 @@ export function TaskDetail() {
       if (!data) {
         return;
       }
-      setUsers(data.users);
+      setUsers((data as any).users || data);
 
     } catch (error) {
       console.error("Error fetching users:", error);
@@ -51,11 +51,11 @@ export function TaskDetail() {
   }
 
   const handleMarkAsComplete = async () => {
-    if (task?.status !== "complete") {
+    if (task && task.status !== "complete") {
       const updateResponse = await markAsComplete(task._id);
       if (updateResponse) {
 
-        setTask(updateResponse.task);
+        setTask((updateResponse as any).task);
       }
     }
   }
@@ -77,10 +77,10 @@ export function TaskDetail() {
     const run = async () => {
       setIsLoading(true);
       if (tasks.length === 0) {
-        await getTaskById(taskId)
+        await getTaskById(taskId as string)
           .then(response => {
             if (response) {
-              setTask(response.task);
+              setTask((response as any).task);
             }
           });
       } else {
@@ -161,7 +161,7 @@ export function TaskDetail() {
                                 <Calendar size={16} className="text-slate-400" />
                                 <span>Created Date</span>
                               </div>
-                              <span className="text-sm font-medium text-slate-800">{formatDate(task.createdAt)}</span>
+                              <span className="text-sm font-medium text-slate-800">{formatDate((task as any).createdAt)}</span>
                             </div>
 
                             <div className="flex items-center justify-between">
@@ -250,7 +250,7 @@ const DeleteTaskModal = ({ taskId, onDelete }: { taskId: string, onDelete: () =>
 const EditTaskModal = ({ task,users, onUpdate, isAdmin }: { task: ITask,users: IUser[], onUpdate: (updatedTask: ITask) => void, isAdmin: boolean }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [changedFields, setChangedFields] = useState<Record<string, FormData>>({});
+  const [changedFields, setChangedFields] = useState<Record<string, any>>({});
   const [hasChanged, setHasChanged] = useState(false);
   const EditTaskFormRef = useRef<HTMLFormElement>(null);
 
@@ -263,11 +263,11 @@ const EditTaskModal = ({ task,users, onUpdate, isAdmin }: { task: ITask,users: I
       return;
     }
 
-    await updateTask(task._id, changedFields)
+    await updateTask(task._id, changedFields as any)
       .then(response => {
         if (response) {
           setChangedFields({});
-          onUpdate(response.task);
+          onUpdate((response as any).task);
           EditTaskFormRef.current?.reset();
           setIsOpen(false);
         }

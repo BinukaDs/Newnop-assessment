@@ -14,3 +14,8 @@ export interface ICreateTaskResponse {
   message: string;
   status: string;
 }
+
+export interface ITaskResponse {
+  message: string;
+  status: string;
+}

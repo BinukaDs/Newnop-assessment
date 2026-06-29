@@ -16,7 +16,7 @@ export default function ProtectedRoute() {
       try {
         const authenticateResponse = await isAuthenticated()
         if (cancelled) return
-        setStatus(authenticateResponse.isValid ? "authed" : "unauthed")
+        setStatus((typeof authenticateResponse === 'object' && authenticateResponse.isValid) ? "authed" : "unauthed")
       } catch (error) {
         console.error("Error checking authentication:", error)
       }

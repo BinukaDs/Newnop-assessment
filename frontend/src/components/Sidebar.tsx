@@ -1,4 +1,4 @@
-import { LayoutDashboard, BarChart2, Settings, HelpCircle, LogOut } from 'lucide-react'
+import { LayoutDashboard, LogOut } from 'lucide-react'
 
 export function Sidebar() {
   return (

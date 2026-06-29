@@ -10,11 +10,12 @@ import { useState, useEffect } from 'react'
 import { isAuthenticated } from './services/auth.service'
 import ProtectedRoute from './services/protectedRoute'
 import type { ITask } from './types/task.types'
+import type { IUser } from './types/auth.types'
 
 function App() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<IUser | null>(null);
   const [tasks, setTasks] = useState<ITask[]>([]);
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState<IUser[]>([]);
 
 
 
@@ -23,7 +24,7 @@ function App() {
     const checkAuth = async () => {
       try {
         const authenticateResponse = await isAuthenticated();
-        if (authenticateResponse) {
+        if (typeof authenticateResponse === 'object' && authenticateResponse.isValid && authenticateResponse.user) {
           const user = authenticateResponse.user;
           localStorage.setItem("userId", user._id);
           setUser(user);
