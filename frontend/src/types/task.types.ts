@@ -4,7 +4,7 @@ export interface ITask {
   _id: string;
   title: string;
   description: string;
-  status: "pending" | "in-progress" | "testing" | "complete";
+  status: "open" | "in-progress" | "testing" | "complete";
   priority: "low" | "medium" | "high";
   dueDate: string;
   assignedTo: IUser;
