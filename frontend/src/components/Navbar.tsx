@@ -13,7 +13,7 @@ export function Navbar() {
 
       <div className="flex items-center gap-6 ml-4">
         <div className="flex items-center gap-3">
-          <Badge variant="outline" className={`${getStatusColor("pending")} gap-1.5 px-3 py-1 font-medium`}>
+          <Badge variant="outline" className={`${getStatusColor("open")} gap-1.5 px-3 py-1 font-medium`}>
             <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
             {tasks.filter(task => task.status === "open").length} Open
           </Badge>
